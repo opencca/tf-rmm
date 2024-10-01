@@ -14,7 +14,8 @@
 #include <sizes.h>
 #include <string.h>
 #include <xlat_tables.h>
-#include <pl011.h>
+#include <uart_16550.h>
+
 
 
 #define ARM_RMM_UART	MAP_REGION_FLAT(			\
@@ -43,6 +44,8 @@ void plat_warmboot_setup(uint64_t x0, uint64_t x1, uint64_t x2, uint64_t x3)
 		panic();
 	}
 }
+
+struct console runtime_console;
 
 /*
  * Global platform setup for RMM.
@@ -94,9 +97,17 @@ void plat_setup(uint64_t x0, uint64_t x1, uint64_t x2, uint64_t x3)
 		uart_baud = (unsigned int)console_ptr->baud_rate;
 
 
+		#if 0
 		/* RMM currently only supports one console */
 		ret = pl011_init(uart_base, uart_clk, uart_baud);
+		#else
 
+		ret = console_16550_register(uart_base,
+					uart_clk,
+					uart_baud,
+					&runtime_console);
+
+		#endif
 
 		if (ret != 0) {
 			rmm_el3_ifc_report_fail_to_el3(E_RMM_BOOT_UNKNOWN_ERROR);

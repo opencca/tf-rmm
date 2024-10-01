@@ -15,7 +15,8 @@ add_library(rmm-plat-rk3588)
 #
 arm_config_option_override(NAME PLAT_CMN_EXTRA_MMAP_REGIONS DEFAULT 1)
 
-add_subdirectory("${RMM_SOURCE_DIR}/drivers/pl011" ${RMM_BINARY_DIR}/drivers/pl011)
+# add_subdirectory("${RMM_SOURCE_DIR}/drivers/pl011" ${RMM_BINARY_DIR}/drivers/pl011)
+add_subdirectory("${RMM_SOURCE_DIR}/drivers/16550" ${RMM_BINARY_DIR}/drivers/16550)
 add_subdirectory("${RMM_SOURCE_DIR}/plat/common" ${RMM_BINARY_DIR}/plat/common)
 
 if(PLAT_ARM_MAX_DRAM_BANKS EQUAL 0x0)
@@ -25,8 +26,9 @@ endif()
 target_compile_definitions(rmm-plat-rk3588
     PRIVATE "PLAT_ARM_MAX_DRAM_BANKS=U(${PLAT_ARM_MAX_DRAM_BANKS})")
 
+# alternative console: rmm-driver-pl011
 target_link_libraries(rmm-plat-rk3588
-    PRIVATE rmm-driver-pl011
+    PRIVATE rmm-driver-16550
             rmm-lib
             rmm-plat-common)
 
