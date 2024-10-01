@@ -100,6 +100,9 @@
 #if !(ENABLE_OPENCCA)
 #define S2TTE_MEMATTR_FWB_NORMAL_WB	((1UL << 4) | (2UL << 2))
 #else
+/* Opencca: Lack of FWB support.
+ * We mark (MemAttr[3:0]) as 0xf so that memory type and cachability
+ * always comes from stage 1 */
 #define S2TTE_MEMATTR_FWB_NORMAL_WB	 (0xF << 2)
 #endif
 #define S2TTE_MEMATTR_FWB_RESERVED	((1UL << 4) | (0UL << 2))

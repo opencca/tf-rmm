@@ -12,6 +12,7 @@
 #include <rec.h>
 #include <smc-rmi.h>
 #include <sysreg_traps.h>
+#include <opencca.h>
 
 #define SYSREG_CASE(reg) \
 	case ESR_EL2_SYSREG_##ID_AA64##reg##_EL1:
@@ -235,7 +236,36 @@ static const struct sysreg_handler sysreg_handlers[] = {
 	SYSREG_HANDLER(ESR_EL2_SYSREG_ICC_EL1_MASK, ESR_EL2_SYSREG_ICC_EL1,
 		       handle_icc_el1_sysreg_trap),
 	SYSREG_HANDLER(ESR_EL2_SYSREG_MASK, ESR_EL2_SYSREG_ICC_PMR_EL1,
-		       handle_icc_el1_sysreg_trap)
+		       handle_icc_el1_sysreg_trap),
+
+#ifdef ENABLE_OPENCCA
+	/* Opencca TVM FWB trap mask */
+	SYSREG_HANDLER(ESR_EL2_SYSREG_HCR_TVM_MASK, ESR_EL2_SYSREG_SCTLR_EL1,
+						opencca_handle_esr_tvm_sysreg_trap),
+	SYSREG_HANDLER(ESR_EL2_SYSREG_HCR_TVM_MASK, ESR_EL2_SYSREG_TTBR0_EL1,
+						opencca_handle_esr_tvm_sysreg_trap),
+	SYSREG_HANDLER(ESR_EL2_SYSREG_HCR_TVM_MASK, ESR_EL2_SYSREG_TTBR1_EL1,
+						opencca_handle_esr_tvm_sysreg_trap),
+	SYSREG_HANDLER(ESR_EL2_SYSREG_HCR_TVM_MASK, ESR_EL2_SYSREG_TCR_EL1,
+						opencca_handle_esr_tvm_sysreg_trap),
+	SYSREG_HANDLER(ESR_EL2_SYSREG_HCR_TVM_MASK, ESR_EL2_SYSREG_TCR2_EL1,
+						opencca_handle_esr_tvm_sysreg_trap),
+	SYSREG_HANDLER(ESR_EL2_SYSREG_HCR_TVM_MASK, ESR_EL2_SYSREG_AFSR0_EL1,
+						opencca_handle_esr_tvm_sysreg_trap),
+	SYSREG_HANDLER(ESR_EL2_SYSREG_HCR_TVM_MASK, ESR_EL2_SYSREG_AFSR1_EL1,
+						opencca_handle_esr_tvm_sysreg_trap),
+	SYSREG_HANDLER(ESR_EL2_SYSREG_HCR_TVM_MASK, ESR_EL2_SYSREG_ESR_EL1,
+						opencca_handle_esr_tvm_sysreg_trap),
+	SYSREG_HANDLER(ESR_EL2_SYSREG_HCR_TVM_MASK, ESR_EL2_SYSREG_FAR_EL1,
+						opencca_handle_esr_tvm_sysreg_trap),
+	SYSREG_HANDLER(ESR_EL2_SYSREG_HCR_TVM_MASK, ESR_EL2_SYSREG_MAIR_EL1,
+						opencca_handle_esr_tvm_sysreg_trap),
+	SYSREG_HANDLER(ESR_EL2_SYSREG_HCR_TVM_MASK, ESR_EL2_SYSREG_AMAIR_EL1,
+						opencca_handle_esr_tvm_sysreg_trap),
+	SYSREG_HANDLER(ESR_EL2_SYSREG_HCR_TVM_MASK, ESR_EL2_SYSREG_CONTEXTIDR_EL1,
+						opencca_handle_esr_tvm_sysreg_trap)
+#endif
+
 };
 
 static unsigned long get_sysreg_write_value(struct rec *rec, unsigned long esr)

@@ -157,14 +157,12 @@ OPENCCA_DEFINE_RENAME_SYSREG_RW_FUNCS(cntpoff_el2, CNTPOFF_EL2)
 OPENCCA_DEFINE_RENAME_SYSREG_RW_FUNCS(cntvoff_el2, cntvoff_el2)
 
 
-struct rec;
 struct rmi_rec_exit;
+struct rec;
 bool opencca_handle_esr_tvm_sysreg_trap(struct rec* rec,
                 struct rmi_rec_exit* rec_exit,
                 unsigned long esr);
 
-
-struct rec;
 void opencca_stage2_flush_realm(struct rec* rec);
 bool opencca_check_pending_timers(struct rec* rec, int simd_trap);
 

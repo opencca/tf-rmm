@@ -21,6 +21,7 @@ target_compile_definitions(rmm-runtime
 
 target_link_libraries(rmm-runtime
     PRIVATE rmm-lib
+            rmm-lib-opencca
             rmm-platform)
 
 target_include_directories(rmm-runtime
@@ -75,6 +76,7 @@ target_sources(rmm-runtime
             "core/inject_exp.c"
             "core/sysregs.c"
             "core/timers.c"
+            "core/opencca_fwb.c"
             "core/opencca_timers.c")
 
 target_sources(rmm-runtime

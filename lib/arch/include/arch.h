@@ -169,6 +169,7 @@
 #define HCR_RW		(UL(1) << 31)
 #define HCR_TDZ		(UL(1) << 28)
 #define HCR_TGE		(UL(1) << 27)
+#define HCR_TVM		(UL(1) << 26)
 #define HCR_TSW		(UL(1) << 22)
 #define HCR_TACR	(UL(1) << 21)
 #define HCR_TIDCP	(UL(1) << 20)
@@ -191,9 +192,19 @@
 #define HCR_SWIO	(UL(1) << 1)
 #define HCR_VM		(UL(1) << 0)
 
+#if ENABLE_OPENCCA
+/* Opencca: Lack of FWB support. 
+ * Trap on cache instructions until MMU enabled
+*/
+#define HCR_REALM_OPENCCA_FLAGS (HCR_TVM)
+#else
+#define HCR_REALM_OPENCCA_FLAGS (0)
+#endif
+
 #define HCR_REALM_FLAGS		(HCR_FWB | HCR_E2H | HCR_RW | HCR_TSC |		\
 				HCR_AMO | HCR_BSU_IS | HCR_IMO | HCR_FMO |	\
 				HCR_PTW | HCR_SWIO | HCR_VM | HCR_TID3 |	\
+				HCR_REALM_OPENCCA_FLAGS | \
 				HCR_TEA | HCR_API | HCR_APK)
 
 #define HCR_EL2_INIT		(HCR_TGE | HCR_E2H | HCR_TEA)
@@ -1059,6 +1070,34 @@
 #define ESR_EL2_SYSREG_TIMER_CNTV_CVAL_EL0	SYSREG_ESR(3, 3, 14, 3, 2)
 
 #define ESR_EL2_SYSREG_ICC_PMR_EL1		SYSREG_ESR(3, 0, 4, 6, 0)
+
+/* OpenCCA TVM traps */
+#define ESR_EL2_SYSREG_SCTLR_EL1 		SYSREG_ESR(3, 0, 1, 0, 0)
+#define ESR_EL2_SYSREG_TTBR0_EL1 		SYSREG_ESR(3, 0, 2, 0, 0)
+#define ESR_EL2_SYSREG_TTBR1_EL1 		SYSREG_ESR(3, 0, 2, 0, 1)
+#define ESR_EL2_SYSREG_TCR_EL1			SYSREG_ESR(3, 0, 2, 0, 2)
+#define ESR_EL2_SYSREG_TCR2_EL1			SYSREG_ESR(3, 0, 2, 0, 3)
+#define ESR_EL2_SYSREG_AFSR0_EL1		SYSREG_ESR(3, 0, 5, 1, 0)
+#define ESR_EL2_SYSREG_AFSR1_EL1		SYSREG_ESR(3, 0, 5, 1, 1)
+#define ESR_EL2_SYSREG_ESR_EL1			SYSREG_ESR(3, 0, 5, 2, 0)
+#define ESR_EL2_SYSREG_FAR_EL1 			SYSREG_ESR(3, 0, 6, 0, 0)
+#define ESR_EL2_SYSREG_MAIR_EL1			SYSREG_ESR(3, 0, 10, 2, 0)
+#define ESR_EL2_SYSREG_AMAIR_EL1		SYSREG_ESR(3, 0, 10, 3, 0)
+#define ESR_EL2_SYSREG_CONTEXTIDR_EL1	SYSREG_ESR(3, 0, 13, 0, 1)
+
+#define ESR_EL2_SYSREG_HCR_TVM_MASK \
+	( ESR_EL2_SYSREG_SCTLR_EL1 \
+	| ESR_EL2_SYSREG_TTBR0_EL1 \
+	| ESR_EL2_SYSREG_TTBR1_EL1 \
+	| ESR_EL2_SYSREG_TCR_EL1 \
+	| ESR_EL2_SYSREG_TCR2_EL1 \
+	| ESR_EL2_SYSREG_AFSR0_EL1 \
+	| ESR_EL2_SYSREG_AFSR1_EL1 \
+	| ESR_EL2_SYSREG_ESR_EL1 \
+	| ESR_EL2_SYSREG_FAR_EL1 \
+	| ESR_EL2_SYSREG_MAIR_EL1 \
+	| ESR_EL2_SYSREG_AMAIR_EL1 \
+	| ESR_EL2_SYSREG_CONTEXTIDR_EL1 )
 
 /*
  * GIC system registers encoding mask for registers from

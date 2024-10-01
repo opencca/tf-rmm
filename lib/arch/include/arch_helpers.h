@@ -89,6 +89,12 @@ void flush_dcache_range(uintptr_t addr, size_t size);
 void clean_dcache_range(uintptr_t addr, size_t size);
 void inv_dcache_range(uintptr_t addr, size_t size);
 
+void __asm_flush_dcache_all(void);
+void __asm_invalidate_dcache_all(void);
+#define flush_dcache_all __asm_flush_dcache_all
+#define invalidate_dcache_all __asm_invalidate_dcache_all
+
+
 #define is_dcache_enabled() ((read_sctlr_el2() & SCTLR_ELx_C_BIT) != 0UL)
 
 /*******************************************************************************
