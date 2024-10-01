@@ -390,9 +390,14 @@ uint64_t xlat_desc(uint64_t attr, uintptr_t addr_pa, int level)
 	 */
 	desc |= ((attr & MT_RW) != 0UL) ? LOWER_ATTRS(AP_RW) : LOWER_ATTRS(AP_RO);
 
+	#if !ENABLE_OPENCCA
 	if ((attr & MT_NG) != 0UL) {
 		desc |= XLAT_GET_NG_HINT();
 	}
+	#else
+	/* Opencca: Mark all mappings as NG as we share the MMU with normal world */
+	desc |= XLAT_GET_NG_HINT();
+	#endif
 
 	/*
 	 * Mark this area as non-executable for unprivileged exception levels,

@@ -91,6 +91,13 @@ static void xlat_desc_print(uint64_t desc)
 	if ((desc & UPPER_ATTRS(GP)) != 0ULL) {
 		VERBOSE("-GP");
 	}
+	#if ENABLE_OPENCCA
+	if ((desc & LOWER_ATTRS(NG_HINT)) != 0ULL) {
+		VERBOSE("-NG");
+	} else {
+		VERBOSE("-G");
+	}
+	#endif
 }
 
 static const char * const level_spacers[] = {

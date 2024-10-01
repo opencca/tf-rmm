@@ -287,6 +287,16 @@
 #define TTBRx_EL2_ASID_SHIFT	48
 #define TTBRx_EL2_ASID_WIDTH	U(16)
 
+/* 
+ * Opencca:
+ * We guarantee to have 2 bits of ASID in
+ * an ASID space of 16 bits (the top most)
+*/
+#define OPENCCA_TTBR0_ASID_BASE U(0x8000)
+#define OPENCCA_TTBR0_ASID_SIZE U(0xF)
+#define OPENCCA_TTBR1_ASID_BASE (OPENCCA_TTBR0_ASID_BASE + OPENCCA_TTBR0_ASID_SIZE)
+#define OPENCCA_TTBR1_ASID_SIZE U(0xF)
+
 /*
  * VTTBR Definitions
  */

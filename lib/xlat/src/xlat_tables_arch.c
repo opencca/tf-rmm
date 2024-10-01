@@ -16,6 +16,7 @@
 #include <xlat_defs_private.h>
 #include <xlat_tables.h>
 #include <xlat_tables_private.h>
+#include <cpuid.h>
 
 static uint64_t read_id_aa64mmfr0_el0_tgran4(void)
 {
@@ -214,6 +215,7 @@ int xlat_arch_setup_mmu_cfg(struct xlat_ctx * const ctx, struct xlat_mmu_cfg *mm
 	 */
 	ttbrx = ((uint64_t)(void *)ctx_tbls->tables) & MASK(TTBRx_EL2_BADDR);
 
+#if !(ENABLE_OPENCCA)
 	/*
 	 * The VA region is not common for the HIGH region as it is used
 	 * by slot buffer.
@@ -223,6 +225,30 @@ int xlat_arch_setup_mmu_cfg(struct xlat_ctx * const ctx, struct xlat_mmu_cfg *mm
 	} else {
 		ttbrx |= TTBR_CNP_BIT;
 	}
+#else
+	/* Opencca: We dont have our own MMU/TLBs.
+	 * So we can not have global mappings easily.
+	 * Mark everything as NG and prefix with ASID
+	 */
+	unsigned int cpuid = my_cpuid();
+	unsigned int asid = 0;
+	int nr = 0;
+
+	ttbrx &= ~TTBR_CNP_BIT;
+	ttbrx &= ~MASK(TTBRx_EL2_ASID);
+	if (ctx_cfg->region == VA_HIGH_REGION) {
+		asid = OPENCCA_TTBR1_ASID_BASE + cpuid;
+		nr = 1;
+		
+	} else {
+		asid = OPENCCA_TTBR0_ASID_BASE + cpuid;
+		nr = 0;
+	}
+	ttbrx |= ((unsigned long) asid) << TTBRx_EL2_ASID_SHIFT;
+	VERBOSE("Setting ASID %x for TTBR%d on core %d\n", asid, nr, cpuid);
+	
+#endif
+
 
 	mmu_config->region = ctx_cfg->region;
 	mmu_config->mair = mair;
