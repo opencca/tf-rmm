@@ -103,7 +103,13 @@ int xlat_high_va_setup(void)
 	 * The base tables for all the contexts are manually allocated as a continuous
 	 * block of memory (one L3 table per PE).
 	 */
+	#if ENABLE_OPENCCA
+	/* Opencca: No Armv8.4-TTST support. Define L2 mapping base instead. */
+	#define high_va_tts_tables (12)
+	static uint64_t high_va_tts[XLAT_TABLE_ENTRIES * MAX_CPUS * high_va_tts_tables] __aligned(XLAT_TABLES_ALIGNMENT);
+	#else
 	static uint64_t high_va_tts[XLAT_TABLE_ENTRIES * MAX_CPUS] __aligned(XLAT_TABLES_ALIGNMENT);
+	#endif
 
 	unsigned int cpuid = my_cpuid();
 	struct xlat_mmu_cfg mmu_config;
@@ -121,7 +127,11 @@ int xlat_high_va_setup(void)
 	ret = xlat_ctx_cfg_init(&high_va_xlat_ctx_cfgs[cpuid], VA_HIGH_REGION,
 				 &mm_regions_array[cpuid][0U],
 				 MMAP_REGION_COUNT,
+				 #if !(ENABLE_OPENCCA)
 				 XLAT_HIGH_VA_SIZE);
+				 #else
+				(1ULL << 25));
+				 #endif
 	if (!((ret == 0) || (ret == -EALREADY))) {
 		return ret;
 	}
@@ -130,10 +140,19 @@ int xlat_high_va_setup(void)
 	 * Initialize the translation tables for the current context.
 	 * This is done on the first boot of each PE.
 	 */
+	#if !(ENABLE_OPENCCA)
 	ret = xlat_ctx_init(&high_va_xlat_ctx[cpuid],
 				&high_va_xlat_ctx_cfgs[cpuid],
 				&high_va_tbls[cpuid],
 				&high_va_tts[(size_t)XLAT_TABLE_ENTRIES * cpuid], 1U);
+	#else
+		/* Opencca is based on Armv8.2 and has no support for Armv8.4-TTST*/
+		ret = xlat_ctx_init(&high_va_xlat_ctx[cpuid],
+				&high_va_xlat_ctx_cfgs[cpuid],
+				&high_va_tbls[cpuid],
+				&high_va_tts[(size_t)XLAT_TABLE_ENTRIES * cpuid * high_va_tts_tables],
+				high_va_tts_tables);
+	#endif	
 
 	if (!((ret == 0) || (ret == -EALREADY))) {
 		return ret;

@@ -17,6 +17,13 @@ unsigned long smc_granule_delegate(unsigned long addr)
 
 	g = find_lock_granule(addr, GRANULE_STATE_NS);
 	if (g == NULL) {
+		#if ENABLE_OPENCCA
+		/* 
+		 * Opencca currently limits the memory of RMM. Print error
+		 * If granule is not in memory range available to RMM..
+		*/
+		ERROR("Opencca: Granule addr: %lx not found\n", addr);
+		#endif
 		return RMI_ERROR_INPUT;
 	}
 

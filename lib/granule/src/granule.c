@@ -237,6 +237,7 @@ bool find_lock_two_granules(
 
 void granule_memzero_mapped(void *buf)
 {
+	#if !ENABLE_OPENCCA
 	unsigned long dczid_el0 = read_dczid_el0();
 	uintptr_t addr = (uintptr_t)buf;
 	unsigned int log2_size;
@@ -262,5 +263,14 @@ void granule_memzero_mapped(void *buf)
 	}
 
 	dsb(ish);
+
+	#else
+	// Opencca: We do not use DCZVA on system without FWB */
+	memset(buf, 0, 1U << GRANULE_SHIFT);
+	for(int i = 0; i < 4096 ; i+=64) {
+		dccivac((uintptr_t)buf + i);
+	}
+	dsb(sy);
+	#endif
 }
 

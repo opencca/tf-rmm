@@ -34,8 +34,10 @@ unsigned long get_feature_register_0(void)
 		     INPLACE(RMI_FEATURE_REGISTER_0_HASH_SHA_512,
 						RMI_FEATURE_TRUE);
 
+#if !(ENABLE_OPENCCA)
 	/* RMM supports PMUv3p7+ */
 	assert(read_pmu_version() >= ID_AA64DFR0_EL1_PMUv3p7);
+#endif /* !ENABLE_OPENCCA */
 
 	/* Set support for PMUv3 */
 	feat_reg0 |= INPLACE(RMI_FEATURE_REGISTER_0_PMU_EN,

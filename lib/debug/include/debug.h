@@ -13,6 +13,8 @@
 #endif
 #include <utils_def.h>
 
+#define HERE WARN("[rmm] %s/%s: %d \n", __FILE__, __FUNCTION__, __LINE__)
+
 /*
  * The log output macros print output to the console. These macros produce
  * compiled log output only if the LOG_LEVEL defined in the makefile (or the
@@ -36,7 +38,7 @@
     #define LOG_LEVEL	LOG_LEVEL_NOTICE
   #else /* Debug */
     #define LOG_LEVEL	LOG_LEVEL_INFO
-  #endif
+ #endif
 #endif
 
 #ifndef __ASSEMBLER__
@@ -87,6 +89,7 @@
  */
 
 #define panic()				\
+	HERE; \
 	do {				\
 	} while (true)
 

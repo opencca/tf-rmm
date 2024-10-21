@@ -28,7 +28,11 @@ string(APPEND CMAKE_EXE_LINKER_FLAGS_INIT "-Wl,-pie ")
 
 # Detect applicable "march=" option supported by compiler
 function(detect_and_set_march)
-	set (march_list 9.2 9.1 9 8.8 8.7 8.6 8.5)
+	if(ENABLE_OPENCCA_INIT)
+		set (march_list 8.2)
+	else()
+		set (march_list 9.2 9.1 9 8.8 8.7 8.6 8.5)
+	endif()
 
 	foreach(v ${march_list})
 		string(REPLACE "." "_" n ${v})

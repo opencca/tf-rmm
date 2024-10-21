@@ -280,6 +280,10 @@ void xlat_arch_tlbi_va_sync(void)
  * Determine the physical address space encoded in the 'attr' parameter.
  */
 uint64_t xlat_arch_get_pas(uint64_t attr)
-{
+{	
+#if ENABLE_OPENCCA
+	return LOWER_ATTRS(NS);
+#else
 	return (MT_PAS(attr) == MT_REALM) ? 0UL : LOWER_ATTRS(NS);
+#endif
 }

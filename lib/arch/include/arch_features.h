@@ -8,12 +8,17 @@
 
 #include <arch_helpers.h>
 #include <stdbool.h>
+#include <debug.h>
+#include <opencca.h>
+
+#if !(ENABLE_OPENCCA)
 
 static inline bool is_armv8_4_ttst_present(void)
 {
 	return (EXTRACT(ID_AA64MMFR2_EL1_ST,
 		read_id_aa64mmfr2_el1()) == 1U);
 }
+#endif
 
 /*
  * Check if SVE is enabled
@@ -26,6 +31,7 @@ static inline bool is_feat_sve_present(void)
 	return (EXTRACT(ID_AA64PFR0_EL1_SVE,
 		read_id_aa64pfr0_el1()) != 0UL);
 }
+#if !(ENABLE_OPENCCA)
 
 /*
  * Check if SME is enabled
@@ -89,6 +95,8 @@ static inline bool is_feat_lpa2_4k_2_present(void)
 		ID_AA64MMFR0_EL1_TGRAN4_2_TGRAN4) && is_feat_lpa2_4k_present()));
 }
 
+#endif /* !ENABLE_OPENCCA */
+
 /*
  * Returns Performance Monitors Extension version.
  * ID_AA64DFR0_EL1.PMUVer, bits [11:8]:
@@ -100,6 +108,8 @@ static inline unsigned int read_pmu_version(void)
 					read_id_aa64dfr0_el1());
 }
 
+#if !(ENABLE_OPENCCA)
+
 /*
  * Check if FEAT_HPMN0 is implemented.
  * ID_AA64DFR0_EL1.HPMN0, bits [63:60]:
@@ -110,6 +120,8 @@ static inline bool is_feat_hpmn0_present(void)
 	return (EXTRACT(ID_AA64DFR0_EL1_HPMN0,
 		read_id_aa64dfr0_el1()) == 1UL);
 }
+
+#endif /* !ENABLE_OPENCCA */
 
 unsigned int arch_feat_get_pa_width(void);
 

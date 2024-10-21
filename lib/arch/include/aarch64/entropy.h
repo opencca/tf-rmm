@@ -8,7 +8,9 @@
 
 #include <arch.h>
 #include <utils_def.h>
+#include <opencca.h>
 
+#if !(ENABLE_OPENCCA)
 /*
  * Write 8 bytes of random data in random. Returns true on success, false on
  * failure.
@@ -33,5 +35,6 @@ static inline bool arch_collect_entropy(uint64_t *random)
 	);
 	return (rc == 1UL);
 }
+#endif
 
 #endif /* ENTROPY_H */

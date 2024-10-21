@@ -11,6 +11,7 @@
 
 #include <arch.h>
 #include <utils_def.h>
+#include <opencca.h>
 
 /*
  * The ARMv8-A architecture allows translation granule sizes of 4KB, 16KB or 64KB.
@@ -89,7 +90,11 @@
  * Hence there is no need to differentiate the value of this macro for non
  * LPA2 case.
  */
+#if !(ENABLE_OPENCCA)
 #define XLAT_TABLE_LEVEL_MIN	(-1)
+#else /* !ENABLE_OPENCCA */
+#define XLAT_TABLE_LEVEL_MIN	(0)
+#endif
 
 /* Mask used to know if an address belongs to a high va region. */
 #define HIGH_REGION_MASK	ADDR_MASK_52_TO_63
@@ -148,6 +153,7 @@
  * Note that this macro assumes that the given virtual address space size is
  * valid.
  */
+#if !(ENABLE_OPENCCA)
 #define GET_XLAT_TABLE_LEVEL_BASE(_virt_addr_space_sz)			\
 	(((_virt_addr_space_sz) > (UL(1) << LM1_XLAT_ADDRESS_SHIFT))	\
 	? -1								\
@@ -157,5 +163,12 @@
 	? 1								\
 	: (((_virt_addr_space_sz) > (UL(1) << L2_XLAT_ADDRESS_SHIFT))	\
 	? 2 : 3))))
-
+#else
+/* Opencca: no TTST support, nor FEAT_LPA2 */
+#define GET_XLAT_TABLE_LEVEL_BASE(_virt_addr_space_sz)			\
+	(((_virt_addr_space_sz) > (UL(1) << L0_XLAT_ADDRESS_SHIFT))	\
+	? 0								\
+	: (((_virt_addr_space_sz) > (UL(1) << L1_XLAT_ADDRESS_SHIFT))	\
+	? 1 : 2))
+#endif
 #endif /* XLAT_DEFS_H */

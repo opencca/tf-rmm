@@ -97,7 +97,11 @@
  */
 #define S2TTE_MEMATTR_SHIFT		2
 #define S2TTE_MEMATTR_MASK		(0x7UL << S2TTE_MEMATTR_SHIFT)
+#if !(ENABLE_OPENCCA)
 #define S2TTE_MEMATTR_FWB_NORMAL_WB	((1UL << 4) | (2UL << 2))
+#else
+#define S2TTE_MEMATTR_FWB_NORMAL_WB	 (0xF << 2)
+#endif
 #define S2TTE_MEMATTR_FWB_RESERVED	((1UL << 4) | (0UL << 2))
 
 #define S2TTE_AP_SHIFT			6
@@ -128,7 +132,11 @@
  * Additional NS attributes set by RMM.
  * It does not include the descriptor type.
  */
+#if !ENABLE_OPENCCA
 #define S2TTE_NS_ATTR_RMM	(S2TTE_AF | S2TTE_NS | S2TTE_XN)
+#else
+#define S2TTE_NS_ATTR_RMM	(S2TTE_AF | S2TTE_NS | S2TTE_XN | S2TTE_MEMATTR_FWB_NORMAL_WB)
+#endif
 
 /* Descriptor templates */
 #define S2TTE_TABLE		S2TTE_L012_TABLE

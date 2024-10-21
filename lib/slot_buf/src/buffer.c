@@ -172,6 +172,19 @@ bool ns_buffer_read(enum buffer_slot slot,
 
 	src = (uintptr_t)ns_buffer_granule_map(slot, ns_gr);
 	retval = memcpy_ns_read(dest, (void *)(src + offset), size);
+
+	#if ENABLE_OPENCCA
+	/*
+	 * XXX: Lack of FWB support requires us to flush
+	 * data cache upon new mappings
+	 */
+	for(int i = 0; i < size ; i+=64) {
+		dccivac((uintptr_t)dest + i);
+	}
+	dsb(ish);
+	dsb(sy);
+	#endif
+
 	ns_buffer_unmap((void *)src);
 
 	return retval;
@@ -212,6 +225,19 @@ bool ns_buffer_write(enum buffer_slot slot,
 
 	dest = (uintptr_t)ns_buffer_granule_map(slot, ns_gr);
 	retval = memcpy_ns_write((void *)(dest + offset), src, size);
+
+	#if ENABLE_OPENCCA
+	/*
+	 * XXX: Lack of FWB support requires us to flush
+	 * data cache upon new mappings
+	 */
+	for(int i = 0; i < size ; i+=64) {
+		dccivac((uintptr_t)dest + i);
+	}
+	dsb(ish);
+	dsb(sy);
+	#endif
+
 	ns_buffer_unmap((void *)dest);
 
 	return retval;

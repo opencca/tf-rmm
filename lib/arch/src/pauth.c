@@ -20,6 +20,10 @@ static __uint128_t g_rmm_pauth_apia[MAX_CPUS];
 /* coverity[misra_c_2012_rule_8_7_violation:SUPPRESS] */
 PAUTH_NONE_ATTR void pauth_init_enable_el2(void)
 {
+	/* Opencca: Majority of functionality in here is not
+	 * available so we do nop implementation instead 
+	*/
+	#if !(ENABLE_OPENCCA)
 	uint64_t low;
 	uint64_t high;
 	unsigned int cpu_id = my_cpuid();
@@ -44,6 +48,8 @@ PAUTH_NONE_ATTR void pauth_init_enable_el2(void)
 	 */
 	write_sctlr_el2(read_sctlr_el2() | SCTLR_ELx_EnIA_BIT);
 	isb();
+
+	#endif
 }
 
 PAUTH_NONE_ATTR void pauth_restore_rmm_keys(void)

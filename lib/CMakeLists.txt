@@ -23,6 +23,7 @@ target_link_libraries(rmm-lib
               rmm-lib-s2tt
               rmm-lib-slot_buf
               rmm-lib-xlat
+              rmm-lib-opencca
               t_cose)
 
 add_subdirectory("allocator")
@@ -42,6 +43,7 @@ add_subdirectory("s2tt")
 add_subdirectory("slot_buf")
 add_subdirectory("t_cose")
 add_subdirectory("xlat")
+add_subdirectory("opencca")
 
 if(RMM_CCA_DA)
     target_link_libraries(rmm-lib INTERFACE rmm-lib-spdm_requester)

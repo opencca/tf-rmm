@@ -78,7 +78,9 @@ DEFINE_SYSOP_TYPE_PARAM_FUNC(at, s1e2r)
 /*******************************************************************************
  * Strip Pointer Authentication Code
  ******************************************************************************/
+#if !(ENABLE_OPENCCA)
 DEFINE_SYSOP_PARAM_FUNC(xpaci)
+#endif /*!(ENABLE_OPENCCA) */
 
 /*******************************************************************************
  * Cache management
@@ -441,8 +443,13 @@ DEFINE_SYSREG_RW_FUNCS(cntp_ctl_el02)
 DEFINE_SYSREG_RW_FUNCS(cntp_cval_el02)
 DEFINE_SYSREG_RW_FUNCS(cntv_ctl_el02)
 DEFINE_SYSREG_RW_FUNCS(cntv_cval_el02)
+
+
+#if !(ENABLE_OPENCCA)
+// Only available with FEAT_ECV: mandatory in v8.6
 DEFINE_SYSREG_RW_FUNCS(cntvoff_el2)
 DEFINE_RENAME_SYSREG_RW_FUNCS(cntpoff_el2, CNTPOFF_EL2)
+#endif
 
 /*******************************************************************************
  * Interrupt Controller register accessor prototypes
@@ -485,6 +492,8 @@ DEFINE_RENAME_SYSREG_RW_FUNCS(ich_vmcr_el2, ICH_VMCR_EL2)
 DEFINE_RENAME_SYSREG_READ_FUNC(ich_vtr_el2, ICH_VTR_EL2)
 DEFINE_RENAME_SYSREG_READ_FUNC(ich_misr_el2, ICH_MISR_EL2)
 
+#if !(ENABLE_OPENCCA)
+
 /* Armv8.3 Pointer Authentication Registers */
 DEFINE_RENAME_SYSREG_RW_FUNCS(apiakeyhi_el1, APIAKeyHi_EL1)
 DEFINE_RENAME_SYSREG_RW_FUNCS(apiakeylo_el1, APIAKeyLo_EL1)
@@ -505,5 +514,7 @@ DEFINE_RENAME_SYSREG_RW_FUNCS(gcr_el1, GCR_EL1)
 
 /* Armv8.5 Random Number Register */
 DEFINE_RENAME_SYSREG_READ_FUNC(rndr, RNDR)
+
+#endif /* !ENABLE_OPENCCA */
 
 #endif /* ARCH_HELPERS_H */

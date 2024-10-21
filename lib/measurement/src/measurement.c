@@ -75,7 +75,7 @@ static void do_hash(enum hash_algo algorithm,
 	assert(ret == 0);
 
 #if LOG_LEVEL >= LOG_LEVEL_VERBOSE
-	measurement_print(out, algorithm);
+	// measurement_print(out, algorithm);
 #endif
 }
 

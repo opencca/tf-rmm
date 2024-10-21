@@ -146,8 +146,13 @@
 #define MT_RO			INPLACE(MT_PERM, 0UL)
 #define MT_RW			INPLACE(MT_PERM, 1UL)
 
+#if !(ENABLE_OPENCCA)
 #define MT_REALM		INPLACE(MT_PAS, 0UL)
 #define MT_NS			INPLACE(MT_PAS, 1UL)
+#else
+#define MT_NS			INPLACE(MT_PAS, 1UL)
+#define MT_REALM		MT_NS
+#endif
 
 /*
  * Access permissions for instruction execution are only relevant for normal

@@ -7,6 +7,7 @@
 #define ARCH_H
 
 #include <utils_def.h>
+#include <opencca.h>
 
 /* Cache line size */
 #define CACHE_WRITEBACK_GRANULE	UL(64)
@@ -62,12 +63,15 @@
 #define ICH_MISR_EL2		S3_4_C12_C11_2
 #define ICH_VMCR_EL2		S3_4_C12_C11_7
 
+#if !(ENABLE_OPENCCA)
 /* RNDR definition */
 #define RNDR			S3_3_C2_C4_0
 
 /* Data Independent Timing Registers */
 #define DIT			S3_3_C4_C2_5
 #define DIT_BIT			(UL(1) << 24)
+#endif /* !ENABLE_OPENCCA */
+
 
 /* CLIDR definitions */
 #define LOC_SHIFT		U(24)
@@ -146,11 +150,20 @@
 #define TCR_TxSZ_MAX		UL(48)
 
 /* HCR definitions */
+
+#if !(ENABLE_OPENCCA)
 #define HCR_FWB		(UL(1) << 46)
 #define HCR_TEA		(UL(1) << 37)
 #define HCR_API		(UL(1) << 41)
 #define HCR_APK		(UL(1) << 40)
 #define HCR_TERR	(UL(1) << 36)
+#else
+#define HCR_FWB		(0) 
+#define HCR_TEA		(0)
+#define HCR_API		(0)
+#define HCR_APK		(0)
+#endif
+
 #define HCR_TLOR	(UL(1) << 35)
 #define HCR_E2H		(UL(1) << 34)
 #define HCR_RW		(UL(1) << 31)
@@ -748,7 +761,12 @@
 #define SCTLR_ELx_nTWE_BIT		(UL(1) << 18)
 #define SCTLR_ELx_WXN_BIT		(UL(1) << 19)
 #define SCTLR_ELx_TSCXT_BIT		(UL(1) << 20)
+
+#if !(ENABLE_OPENCCA)
 #define SCTLR_ELx_EIS_BIT		(UL(1) << 22)
+#else
+#define SCTLR_ELx_EIS_BIT		(UL(0))
+#endif
 #define SCTLR_ELx_SPAN_BIT		(UL(1) << 23)
 #define SCTLR_ELx_EE_BIT		(UL(1) << 25)
 #define SCTLR_ELx_UCI_BIT		(UL(1) << 26)
@@ -809,7 +827,13 @@
 
 /* RMM sets HCR_EL2.E2H to 1. CPTR_EL2 definitions when HCR_EL2.E2H == 1 */
 #define CPTR_EL2_VHE_TTA		(UL(1) << 28)
+
+
+#if !(ENABLE_OPENCCA)
 #define CPTR_EL2_VHE_TAM		(UL(1) << 30)
+#else
+#define CPTR_EL2_VHE_TAM		(0)
+#endif
 
 #define CPTR_EL2_VHE_FPEN_SHIFT		UL(20)
 #define CPTR_EL2_VHE_FPEN_WIDTH		UL(2)
@@ -833,6 +857,7 @@
 					 MASK(CPTR_EL2_VHE_SMEN))
 
 /* Trap all AMU, trace, FPU, SVE, SME accesses */
+#if !(ENABLE_OPENCCA)
 #define CPTR_EL2_VHE_INIT		((CPTR_EL2_VHE_ZEN_TRAP_ALL_00 << \
 					  CPTR_EL2_VHE_ZEN_SHIFT)	| \
 					 (CPTR_EL2_VHE_SMEN_TRAP_ALL_00 << \
@@ -841,6 +866,12 @@
 					  CPTR_EL2_VHE_FPEN_SHIFT)	| \
 					 CPTR_EL2_VHE_TTA		| \
 					 CPTR_EL2_VHE_TAM)
+
+
+#else
+/* Opencca only supports FP trapping */
+#define CPTR_EL2_VHE_INIT ((CPTR_EL2_VHE_FPEN_TRAP_ALL_00 << CPTR_EL2_VHE_FPEN_SHIFT))				 
+#endif
 
 /* MDCR_EL2 definitions */
 #define MDCR_EL2_HPMFZS		(UL(1) << 36)
@@ -864,7 +895,7 @@
 
 #define MDCR_EL2_HPMN_SHIFT	UL(0)
 #define MDCR_EL2_HPMN_WIDTH	UL(5)
-
+				
 #define MDCR_EL2_INIT		(MDCR_EL2_MTPME		| \
 				 MDCR_EL2_HCCD		| \
 				 MDCR_EL2_HPMD		| \
@@ -1048,6 +1079,7 @@
 #define ESR_EL2_SYSREG_ISS_RT(esr)	EXTRACT(ESR_EL2_SYSREG_TRAP_RT, esr)
 
 #define ICC_HPPIR1_EL1_INTID_SHIFT	UL(0)
+
 #define ICC_HPPIR1_EL1_INTID_WIDTH	UL(24)
 
 #define CNTHCTL_EL2_EL0PCTEN	(UL(1) << UL(0))

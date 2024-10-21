@@ -18,6 +18,7 @@
 #include <simd.h>
 #include <smc-rmi.h>
 #include <timers.h>
+#include <opencca.h>
 
 static struct ns_state g_ns_data[MAX_CPUS];
 
@@ -287,6 +288,10 @@ void rec_run_loop(struct rec *rec, struct rmi_rec_exit *rec_exit)
 	assert(rec->active_simd_ctx == NULL);
 	rec->active_simd_ctx = &g_ns_simd_ctx[cpuid];
 
+	#if ENABLE_OPENCCA
+	struct simd_context *last_rec_active_simd_ctx = rec->active_simd_ctx;
+	#endif
+
 	do {
 		unsigned long rmm_cptr_el2 = read_cptr_el2();
 
@@ -296,7 +301,15 @@ void rec_run_loop(struct rec *rec, struct rmi_rec_exit *rec_exit)
 		 * mask on each entry to the realm and that we report any
 		 * change in output level to the NS caller.
 		 */
+		#if ENABLE_OPENCCA
+		/* Opencca: No Enhanced Counter Virtualization (ECV)*/
+		int is_simd_trap = 
+				last_rec_active_simd_ctx->owner == SIMD_OWNER_NWD
+				&& rec->active_simd_ctx->owner == SIMD_OWNER_REL1;
+		if (opencca_check_pending_timers(rec, is_simd_trap)) {
+		#else
 		if (check_pending_timers(rec)) {
+		#endif
 			rec_exit->exit_reason = RMI_EXIT_IRQ;
 			break;
 		}
@@ -317,6 +330,10 @@ void rec_run_loop(struct rec *rec, struct rmi_rec_exit *rec_exit)
 		pauth_restore_realm_keys(&rec->pauth);
 
 		realm_exception_code = run_realm(&rec->regs[0]);
+
+		#if ENABLE_OPENCCA
+		last_rec_active_simd_ctx = rec->active_simd_ctx;
+		#endif
 
 		/* Save Realm PAuth key. */
 		pauth_save_realm_keys(&rec->pauth);
