@@ -7,6 +7,8 @@ arm_config_option_override(NAME PLAT_CMN_CTX_MAX_XLAT_TABLES DEFAULT 80)
 
 arm_config_option_override(NAME ENABLE_OPENCCA DEFAULT 1)
 
+arm_config_option_override(NAME ENABLE_OPENCCA_PERF DEFAULT 0)
+
 # XXX: We currently limit the RMM addressable memory to first 4GB
 arm_config_option_override(NAME RMM_MAX_GRANULES DEFAULT 0x100000)
 

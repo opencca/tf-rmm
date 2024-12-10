@@ -32,7 +32,11 @@ static void save_sysreg_state(struct sysreg_state *sysregs)
 	sysregs->sp_el1 = read_sp_el1();
 	sysregs->elr_el1 = read_elr_el12();
 	sysregs->spsr_el1 = read_spsr_el12();
+	#if !ENABLE_OPENCCA_PERF
 	sysregs->pmcr_el0 = read_pmcr_el0();
+	#else
+	// TODO: Account for overhead
+	#endif
 	sysregs->tpidrro_el0 = read_tpidrro_el0();
 	sysregs->tpidr_el0 = read_tpidr_el0();
 	sysregs->csselr_el1 = read_csselr_el1();
@@ -82,8 +86,13 @@ static void save_realm_state(struct rec *rec, struct rmi_rec_exit *rec_exit)
 		pmu_update_rec_exit(rec_exit);
 
 		/* Save PMU context */
+		#if ENABLE_OPENCCA_PERF
+		pmu_save_state(&rec->ns->pmu,
+				rec->realm_info.pmu_num_ctrs);
+		#else
 		pmu_save_state(rec->aux_data.pmu,
 				rec->realm_info.pmu_num_ctrs);
+		#endif
 	}
 }
 
@@ -93,7 +102,11 @@ static void restore_sysreg_state(struct sysreg_state *sysregs)
 	write_sp_el1(sysregs->sp_el1);
 	write_elr_el12(sysregs->elr_el1);
 	write_spsr_el12(sysregs->spsr_el1);
+	#if !ENABLE_OPENCCA_PERF
 	write_pmcr_el0(sysregs->pmcr_el0);
+	#else
+	// TODO: Account for overhead
+	#endif
 	write_tpidrro_el0(sysregs->tpidrro_el0);
 	write_tpidr_el0(sysregs->tpidr_el0);
 	write_csselr_el1(sysregs->csselr_el1);
@@ -168,8 +181,13 @@ static void restore_realm_state(struct rec *rec)
 
 	if (rec->realm_info.pmu_enabled) {
 		/* Restore PMU context */
+		#if ENABLE_OPENCCA_PERF
+		pmu_restore_state(&rec->ns->pmu,
+				  rec->realm_info.pmu_num_ctrs);
+		#else
 		pmu_restore_state(rec->aux_data.pmu,
 				  rec->realm_info.pmu_num_ctrs);
+		#endif
 	}
 }
 

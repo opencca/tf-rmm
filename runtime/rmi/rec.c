@@ -23,9 +23,11 @@
 
 static void init_rec_sysregs(struct rec *rec, unsigned long rec_mpidr)
 {
+	#if !ENABLE_OPENCCA_PERF
 	/* Set non-zero values only */
 	rec->sysregs.pmcr_el0 = rec->realm_info.pmu_enabled ?
 				PMCR_EL0_INIT_RESET : PMCR_EL0_INIT;
+	#endif
 
 	rec->sysregs.sctlr_el1 = SCTLR_EL1_FLAGS;
 	rec->sysregs.mdscr_el1 = MDSCR_EL1_TDCC_BIT;
