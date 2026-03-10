@@ -148,6 +148,18 @@ static void restore_sysreg_state(struct sysreg_state *sysregs)
 	write_cntp_ctl_el02(sysregs->cntp_ctl_el0);
 	write_cntv_cval_el02(sysregs->cntv_cval_el0);
 	write_cntv_ctl_el02(sysregs->cntv_ctl_el0);
+
+
+
+	/*
+	 * ISB to ensure the timer register writes above are committed
+	 * before any subsequent read of timer state (e.g. in
+	 * check_pending_timers()). Without this barrier, CNTV_CTL can
+	 * return a stale value causing the pending timer check to miss
+	 * a set ISTATUS bit, leaving the virtual timer IRQ unmasked and
+	 * triggering a repeated exit/entry loop.
+	 */
+	isb();
 }
 
 static void configure_realm_stage2(struct rec *rec)
