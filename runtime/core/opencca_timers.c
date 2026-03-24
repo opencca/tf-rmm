@@ -23,6 +23,9 @@ opencca_check_pending_timers(struct rec* rec, int simd_trap)
     unsigned long cntv_ctl = read_cntv_ctl_el02();
     unsigned long cntp_ctl = read_cntp_ctl_el02();
 
+    rec->sysregs.cntv_ctl_el0 = cntv_ctl;
+    rec->sysregs.cntp_ctl_el0 = cntp_ctl;
+
     /* Save the old state */
     unsigned long cntv_ctl_old = rec->sysregs.cntv_ctl_el0;
     unsigned long cntp_ctl_old = rec->sysregs.cntp_ctl_el0;
