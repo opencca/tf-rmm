@@ -24,6 +24,37 @@
 #include <status.h>
 #include <sysreg_traps.h>
 
+#ifdef RMM_WORKAROUND_834220
+static bool esr_is_permission_fault(unsigned long esr)
+{
+	unsigned long fsc_type = (esr & MASK(ESR_EL2_ABORT_FSC)) &
+				 ~MASK(ESR_EL2_ABORT_FSC_LEVEL);
+
+	return fsc_type == ESR_EL2_ABORT_FSC_PERMISSION_FAULT;
+}
+
+static unsigned long par_to_ipa(unsigned long par, unsigned long va)
+{
+	return (par & BIT_MASK_ULL(S2TT_MAX_PA_BITS - 1U, GRANULE_SHIFT)) |
+	       (va & ~GRANULE_MASK);
+}
+
+static unsigned long at_s1e1r_par(unsigned long va)
+{
+	unsigned long old_par;
+	unsigned long par;
+
+	old_par = read_par_el1();
+	ats1e1r(va);
+	isb();
+	par = read_par_el1();
+	write_par_el1(old_par);
+	isb();
+
+	return par;
+}
+#endif
+
 static void system_abort(void)
 {
 	/*
@@ -202,12 +233,32 @@ static bool handle_data_abort(struct rec *rec, struct rmi_rec_exit *rec_exit,
 	unsigned long fipa = (hpfar & MASK(HPFAR_EL2_FIPA)) << HPFAR_EL2_FIPA_OFFSET;
 	unsigned long write_val = 0UL;
 
+#ifdef RMM_WORKAROUND_834220
+	bool hpfar_recovered = false;
+#endif
+
 	if (handle_sync_external_abort(rec, rec_exit, esr)) {
 		/*
 		 * All external aborts are immediately reported to the host.
 		 */
 		return false;
 	}
+
+#ifdef RMM_WORKAROUND_834220
+	if (((esr & ESR_EL2_ABORT_S1PTW_BIT) == 0UL) &&
+	    esr_is_permission_fault(esr)) {
+		unsigned long live_far = read_far_el2();
+		unsigned long par = at_s1e1r_par(live_far);
+
+		if ((par & PAR_EL1_F_BIT) != 0UL) {
+			return true;
+		}
+
+		fipa = par_to_ipa(par, live_far) & GRANULE_MASK;
+		hpfar = fipa >> HPFAR_EL2_FIPA_OFFSET;
+		hpfar_recovered = true;
+	}
+#endif
 
 	/*
 	 * The memory access that crosses a page boundary may cause two aborts
@@ -223,7 +274,14 @@ static bool handle_data_abort(struct rec *rec, struct rmi_rec_exit *rec_exit,
 
 	if (fixup_aarch32_data_abort(rec, &esr) ||
 	    access_in_rec_par(rec, fipa)) {
-		esr &= ESR_NONEMULATED_ABORT_MASK;
+		unsigned long esr_mask = ESR_NONEMULATED_ABORT_MASK;
+
+#ifdef RMM_WORKAROUND_834220
+		if (hpfar_recovered) {
+			esr_mask |= ESR_EL2_ABORT_WNR_BIT;
+		}
+#endif
+		esr &= esr_mask;
 		goto end;
 	}
 

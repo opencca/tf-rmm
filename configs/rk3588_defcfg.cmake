@@ -16,3 +16,4 @@ arm_config_option_override(NAME RMM_NUM_PAGES_PER_STACK DEFAULT 5)
 
 arm_config_option_override(NAME RMM_FPU_USE_AT_REL2 DEFAULT OFF)
 
+arm_config_option_override(NAME RMM_WORKAROUND_834220 DEFAULT ON)

@@ -50,6 +50,13 @@ arm_config_option(
     TYPE BOOL
     DEFAULT OFF)
 
+arm_config_option(
+    NAME RMM_WORKAROUND_834220
+    HELP "Work around Arm erratum 834220 HPFAR data aborts"
+    TYPE BOOL
+    DEFAULT OFF
+    ADVANCED)
+
 #
 # The number of 4K pages allocated for attestation buffer.
 #
@@ -109,6 +116,11 @@ target_compile_definitions(rmm-common
 if(RMM_FPU_USE_AT_REL2 AND RMM_ARCH STREQUAL aarch64)
     target_compile_definitions(rmm-common
         INTERFACE "RMM_FPU_USE_AT_REL2=1")
+endif()
+
+if(RMM_WORKAROUND_834220)
+    target_compile_definitions(rmm-common
+        INTERFACE "RMM_WORKAROUND_834220=1")
 endif()
 
 target_compile_definitions(rmm-common
